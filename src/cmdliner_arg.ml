@@ -226,11 +226,11 @@ let opt_all ?vopt (parse, print) v a =
   arg_to_args a, convert
 
 type 'a econv = { conv : 'b. 'b conv * ('b -> 'a) }
- 
-let opt_vflag_all
-  (v : ('a * 'b option) list)
-  (l : ('a * ('b option * 'a econv) option * info) list)
-  : ('a * 'b option) list t
+
+let opt_vflag_all (type a) (type b)
+  (v : (a * b option) list)
+  (l : (a * (b option * b econv) option * info) list)
+  : (a * b option) list t
   =
   let set_opt_info a_init print vopt =
     if Cmdliner_info.Arg.is_pos a_init
@@ -253,22 +253,22 @@ let opt_vflag_all
       | (fv, None, a) :: rest ->
         Result.fold
           acc_result
-          ~ok:(fun acc ->
+          ~ok:(fun (acc : (int * (a * b option)) list) ->
             match Cmdliner_cline.opt_arg cl a with
             | [] -> aux (Ok acc) rest
             | l ->
               let fval (k, f, v) =
                 match v with
-                | None -> k, (fv, (None ))
+                | None -> k, (fv, None)
                 | Some v -> failwith (Cmdliner_msg.err_flag_value f v)
               in
               aux (Ok (List.rev_append (List.rev_map fval l) acc)) rest)
           ~error:(fun _ -> aux acc_result rest)
-      | (_, Some (vopt, ({ conv = (parse, print), v_conv } : 'a econv)), a_init) :: rest
+      | (fv, Some (vopt, ({ conv = (parse, print), v_conv } : b econv)), a_init) :: rest
         ->
         Result.fold
           acc_result
-          ~ok:(fun (acc : (int * ('a * 'b option)) list) ->
+          ~ok:(fun (acc : (int * (a * b option)) list) ->
             let a_opt = set_opt_info a_init print vopt in
             let opt_result =
               match Cmdliner_cline.opt_arg cl a_opt with
@@ -281,7 +281,7 @@ let opt_vflag_all
                     ~absent:(List.split v |> snd |> List.filter_map Fun.id)
                 in
                 (Result.map (fun abl ->
-                   let env_opt_list = List.map (fun b -> 0, (v_conv b, Some b)) abl in
+                   let env_opt_list : (int * (a * b option)) list = List.map (fun b -> 0, (fv, Some (v_conv b))) abl in
                    List.rev_append env_opt_list acc))
                   env_res
               | l ->
@@ -289,16 +289,16 @@ let opt_vflag_all
                   match v with
                   | Some v ->
                     let b = parse_opt_value parse f v in
-                    let a = v_conv b in
-                    k, (a, Some b)
+                    let b = v_conv b in
+                    k, (fv, Some b)
                   | None ->
                     (match vopt with
                      | None -> failwith (Cmdliner_msg.err_opt_value_missing f)
                      | Some b ->
-                       let a = v_conv b in
-                       k, (a, Some b))
+                       let b = v_conv b in
+                       k, (fv, Some b))
                 in
-                let opt_list = List.rev (List.sort rev_compare (List.rev_map parse l)) in
+                let opt_list : (int * (a * b option)) list = List.rev (List.sort rev_compare (List.rev_map parse l)) in
                 let opt_list = List.rev_append opt_list acc in
                 Ok opt_list
             in

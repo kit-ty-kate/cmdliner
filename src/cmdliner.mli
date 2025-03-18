@@ -997,7 +997,7 @@ module Arg : sig
 
   type 'a econv = { conv : 'b. 'b conv * ('b -> 'a) }
   val opt_vflag_all : ('a * 'b option) list ->
-  ('a * ('b option * 'a econv) option * info) list -> ('a * 'b option) list t
+  ('a * ('b option * 'b econv) option * info) list -> ('a * 'b option) list t
 
   (** {1:posargs Positional arguments}
 

@@ -47,7 +47,7 @@ val vflag : 'a -> ('a * info) list -> 'a t
 val vflag_all : 'a list -> ('a * info) list -> 'a list t
 type 'a econv = { conv : 'b. 'b conv * ('b -> 'a) }
 val opt_vflag_all : ('a * 'b option) list ->
-  ('a * ('b option * 'a econv) option * info) list -> ('a * 'b option) list t
+  ('a * ('b option * 'b econv) option * info) list -> ('a * 'b option) list t
  val opt : ?vopt:'a -> 'a converter -> 'a -> info -> 'a t
 val opt_all : ?vopt:'a -> 'a converter -> 'a list -> info -> 'a list t
 
