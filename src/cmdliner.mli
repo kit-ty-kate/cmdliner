@@ -995,7 +995,8 @@ module Arg : sig
       It holds the list [v] if the flag is absent from the command line. *)
 
 
-  type 'a econv = { conv : 'b. 'b conv * ('b -> 'a) }
+  type 'a econv
+  val econv : 'a conv -> ('a -> 'b) -> 'b econv
   val opt_vflag_all : ('a * 'b option) list ->
   ('a * ('b option * 'b econv) option * info) list -> ('a * 'b option) list t
 

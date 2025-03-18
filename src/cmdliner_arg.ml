@@ -225,7 +225,11 @@ let opt_all ?vopt (parse, print) v a =
   in
   arg_to_args a, convert
 
-type 'a econv = { conv : 'b. 'b conv * ('b -> 'a) }
+type 'a econv = < conv : 'b. 'b conv * ('b -> 'a) >
+
+let econv x f = object
+  method conv : 'a. 'a conv * ('a -> 'b) = Obj.magic (x, f)
+end
 
 let opt_vflag_all (type a) (type b)
   (v : (a * b option) list)
@@ -264,8 +268,8 @@ let opt_vflag_all (type a) (type b)
               in
               aux (Ok (List.rev_append (List.rev_map fval l) acc)) rest)
           ~error:(fun _ -> aux acc_result rest)
-      | (fv, Some (vopt, ({ conv = (parse, print), v_conv } : b econv)), a_init) :: rest
-        ->
+      | (fv, Some (vopt, (econv : b econv)), a_init) :: rest ->
+        let (parse, print), v_conv = econv#conv in
         Result.fold
           acc_result
           ~ok:(fun (acc : (int * (a * b option)) list) ->
@@ -328,7 +332,8 @@ let opt_vflag_all (type a) (type b)
   let opts_args =
     List.fold_left
       (fun acc -> function
-        | _, Some (vopt, { conv = (_, print), _ }), a ->
+        | _, Some (vopt, (econv : b econv)), a ->
+          let (_, print), _ = econv#conv in
           let a_opt = set_opt_info a print vopt in
           Cmdliner_info.Arg.Set.union (arg_to_args a_opt) acc
         | _ -> acc)
