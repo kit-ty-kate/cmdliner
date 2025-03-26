@@ -19,4 +19,5 @@ val find :
 val ambiguities : 'a t -> string -> string list
 val of_list : (string * 'a) list -> 'a t
 
+val legacy_prefixes_ref : bool ref
 val legacy_prefixes : env:(string -> string option) -> bool

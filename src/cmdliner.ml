@@ -10,5 +10,6 @@ module Cmd = struct
   module Env = Cmdliner_info.Env
   include Cmdliner_cmd
   include Cmdliner_eval
+  let legacy_prefixes_ref = Cmdliner_trie.legacy_prefixes_ref
 end
 module Arg = Cmdliner_arg

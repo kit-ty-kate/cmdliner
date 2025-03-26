@@ -589,6 +589,10 @@ module Cmd : sig
       specification of the command line: we can't tell apart a
       positional argument from the value of an unknown optional
       argument. *)
+
+  (**/**)
+  val legacy_prefixes_ref : bool ref
+  (**/**)
 end
 
 (** Terms for command line arguments.
