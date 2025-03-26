@@ -368,8 +368,7 @@ let enum ?(docv = "ENUM") sl =
   if sl = [] then invalid_arg Cmdliner_base.err_empty_list else
   let t = Cmdliner_trie.of_list sl in
   let parser s =
-    let legacy_prefixes = Cmdliner_trie.legacy_prefixes ~env:Sys.getenv_opt in
-    match Cmdliner_trie.find ~legacy_prefixes t s with
+    match Cmdliner_trie.find t s with
     | Ok _ as v -> v
     | Error `Ambiguous (* Only on legacy prefixes *) ->
         let ambs = List.sort compare (Cmdliner_trie.ambiguities t s) in
